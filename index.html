@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafetyGuard | Behavioral Observations</title>
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react-dom": "https://esm.sh/react-dom@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime",
+        "@google/genai": "https://esm.sh/@google/genai",
+        "canvas-confetti": "https://esm.sh/canvas-confetti@1.6.0"
+      }
+    }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Playfair+Display:ital,wght@1,700;1,900&family=Roboto+Mono:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* slate-950 */
+        }
+
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .font-mono {
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        /* Custom scrollbar for industrial look */
+        ::-webkit-scrollbar {
+          width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+          background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: #334155;
+          border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: #22d3ee;
+        }
+
+        @keyframes checkmark {
+          0% { transform: scale(0); opacity: 0; }
+          50% { transform: scale(1.2); opacity: 1; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-checkmark {
+          animation: checkmark 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
+        .animate-float {
+          animation: float 2.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-premium {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        .animate-pulse-premium {
+          animation: pulse-premium 3s ease-in-out infinite;
+        }
+
+        /* Glint Animation Effect */
+        .glint-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        .glint-effect::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+            transform: skewX(-20deg);
+            animation: glint 2.5s ease-in-out infinite;
+        }
+        @keyframes glint {
+            0% { left: -150%; }
+            100% { left: 150%; }
+        }
+
+        /* Custom Sage Green and Amber accents */
+        .bg-sage-600 { background-color: #88a08b; }
+        .border-sage-500 { border-color: #7a947d; }
+        .text-sage-300 { color: #d1dad2; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+</body>
+</html>

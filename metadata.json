@@ -1,0 +1,7 @@
+{
+  "name": "SafetyGuard: Behavioral Observation System",
+  "description": "A high-contrast, mobile-responsive field app for recording safety behavioral observations across 8 critical categories with AI-powered risk analysis.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

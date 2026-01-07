@@ -1,0 +1,79 @@
+
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BehavioralObservation",
+  "description": "A safety observation record from the field",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique UUID for the observation"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Body position",
+        "People initial reaction",
+        "PPE",
+        "Procedures",
+        "Tools and equipment",
+        "Work Environment",
+        "Pollution",
+        "Food safety"
+      ]
+    },
+    "subCategory": {
+      "type": "string",
+      "description": "Industry-standard sub-item selected based on primary category"
+    },
+    "location": {
+      "type": "string",
+      "description": "The specific unit, zone, or site area"
+    },
+    "observerName": {
+      "type": "string",
+      "description": "Name of the person conducting the observation"
+    },
+    "dateTime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of the event"
+    },
+    "isSafe": {
+      "type": "boolean",
+      "description": "True if safe, False if unsafe/risk"
+    },
+    "comments": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Narrative description of behavior or condition"
+    },
+    "correctiveAction": {
+      "type": "string",
+      "description": "Immediate steps taken to remediate risk"
+    },
+    "imageUrl": {
+      "type": "string",
+      "description": "Base64 encoded string of the captured photo evidence"
+    },
+    "aiAnalysis": {
+      "type": "string",
+      "description": "Machine-generated risk insight"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["low", "medium", "high"],
+      "description": "Calculated risk severity level"
+    }
+  },
+  "required": [
+    "id",
+    "category",
+    "subCategory",
+    "location",
+    "observerName",
+    "dateTime",
+    "isSafe",
+    "comments"
+  ]
+}
