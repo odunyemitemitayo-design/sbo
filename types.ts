@@ -63,9 +63,14 @@ export interface Observation {
   isImmediateRisk?: boolean;
   comments: string;
   correctiveAction?: string;
+  remediationNotes?: string;
   imageUrl?: string;
   aiAnalysis?: string;
   severity?: 'low' | 'medium' | 'high';
+  status: 'pending' | 'in-progress' | 'completed';
+  assignedTo?: string;
+  dueDate?: string;
+  completedAt?: string; // New field for completion timestamp
 }
 
 export type ViewState = 'form' | 'history';

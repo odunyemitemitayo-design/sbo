@@ -24,7 +24,6 @@ const ObservationList: React.FC<ObservationListProps> = ({ observations }) => {
     );
   }
 
-  // Grouping logic for summary sections
   const groupedObservations = observations.reduce((acc, obs) => {
     const header = CategoryDisplayNames[obs.category];
     if (!acc[header]) acc[header] = [];
@@ -68,17 +67,21 @@ const ObservationList: React.FC<ObservationListProps> = ({ observations }) => {
             <div className="grid grid-cols-1 gap-12">
               {(items as Observation[]).map((obs) => (
                 <div key={obs.id} className="bg-white text-slate-950 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col md:flex-row min-h-[400px] border border-slate-100 print:shadow-none print:border-slate-200 print:break-inside-avoid">
-                  {/* Status Indicator Bar */}
-                  <div className={`md:w-16 flex md:flex-col items-center justify-center p-4 transition-colors ${obs.isImmediateRisk ? 'bg-rose-600' : (obs.isSafe ? 'bg-emerald-500' : 'bg-rose-500')} print:w-4`}>
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] rotate-0 md:-rotate-90 whitespace-nowrap text-slate-950 print:hidden">
-                      {obs.isImmediateRisk ? 'URGENT RISK' : (obs.isSafe ? 'Compliant' : 'Risk Log')}
-                    </span>
+                  <div className={`md:w-16 flex md:flex-col items-center justify-center p-4 transition-colors ${obs.status === 'completed' ? 'bg-emerald-500' : (obs.status === 'in-progress' ? 'bg-amber-500' : 'bg-rose-500')} print:w-4`}>
+                    <div className="text-slate-950 flex flex-col items-center gap-2">
+                       {obs.status === 'completed' ? (
+                         <i data-lucide="check-circle-2" className="w-6 h-6 stroke-[3px]"></i>
+                       ) : (
+                         <i data-lucide={obs.status === 'in-progress' ? "clock" : "alert-triangle"} className="w-6 h-6 stroke-[3px]"></i>
+                       )}
+                       <span className="text-[10px] font-black uppercase tracking-[0.3em] rotate-0 md:-rotate-90 whitespace-nowrap print:hidden mt-4">
+                         {obs.status === 'completed' ? 'Closed-Out' : (obs.status === 'in-progress' ? 'Active Action' : 'Pending')}
+                       </span>
+                    </div>
                   </div>
 
-                  {/* Content Area */}
                   <div className="flex-1 p-8 md:p-12 space-y-8 flex flex-col relative">
-                    {/* Urgent Risk Badge */}
-                    {obs.isImmediateRisk && (
+                    {obs.isImmediateRisk && obs.status !== 'completed' && (
                       <div className="absolute top-4 right-8 bg-rose-600 text-white px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg animate-pulse-premium print:hidden">
                         Immediate Hazard Detected
                       </div>
@@ -97,15 +100,31 @@ const ObservationList: React.FC<ObservationListProps> = ({ observations }) => {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                       <div className="space-y-6">
-                        <div className={`p-6 rounded-2xl border transition-all ${obs.isImmediateRisk ? 'bg-rose-50 border-rose-200' : 'bg-slate-50 border-slate-100'} print:bg-transparent print:border-slate-200`}>
-                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Narrative Context</span>
-                          <p className={`text-lg font-serif italic leading-relaxed font-bold print:text-base ${obs.isImmediateRisk ? 'text-rose-900' : 'text-slate-800'}`}>"{obs.comments}"</p>
+                        <div className={`p-6 rounded-2xl border transition-all ${obs.isImmediateRisk && obs.status !== 'completed' ? 'bg-rose-50 border-rose-200' : 'bg-slate-50 border-slate-100'} print:bg-transparent print:border-slate-200`}>
+                          <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-2">Narrative Context</span>
+                          <p className={`text-lg font-serif italic leading-relaxed font-bold print:text-base ${obs.isImmediateRisk && obs.status !== 'completed' ? 'text-rose-900' : 'text-slate-800'}`}>"{obs.comments}"</p>
                         </div>
                         
-                        {obs.correctiveAction && (
-                          <div className="bg-emerald-50/50 p-6 rounded-2xl border-l-4 border-emerald-500 print:border-slate-400">
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Mitigation Response</span>
-                            <p className="text-sm font-bold text-slate-700 italic">"{obs.correctiveAction}"</p>
+                        {(obs.correctiveAction || obs.remediationNotes) && (
+                          <div className="space-y-4">
+                             {obs.correctiveAction && (
+                                <div className="bg-emerald-50/50 p-6 rounded-2xl border-l-4 border-emerald-500 print:border-slate-400">
+                                  <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-2">Immediate Field Mitigation</span>
+                                  <p className="text-sm font-bold text-slate-700 italic">"{obs.correctiveAction}"</p>
+                                </div>
+                             )}
+                             {obs.remediationNotes && (
+                                <div className="bg-cyan-50 p-6 rounded-2xl border-l-4 border-cyan-600 print:border-slate-400">
+                                  <span className="text-[8px] font-black text-cyan-600 uppercase tracking-widest block mb-2">Final Remediation Strategy</span>
+                                  <p className="text-sm font-black text-slate-800 italic">"{obs.remediationNotes}"</p>
+                                  <div className="mt-3 flex justify-between items-center">
+                                    <p className="text-[8px] uppercase font-black text-cyan-700">Closed By: {obs.assignedTo}</p>
+                                    {obs.completedAt && (
+                                      <p className="text-[8px] font-black text-slate-400 uppercase">Resolved: {new Date(obs.completedAt).toLocaleDateString()}</p>
+                                    )}
+                                  </div>
+                                </div>
+                             )}
                           </div>
                         )}
 

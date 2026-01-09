@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 import ObservationForm from './components/ObservationForm';
 import ObservationList from './components/ObservationList';
 import { Observation, ViewState } from './types';
+import { storage, StorageKeys } from './services/storageService';
 
 const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('form');
@@ -11,32 +12,41 @@ const App: React.FC = () => {
   const [formProgress, setFormProgress] = useState(0);
 
   useEffect(() => {
-    const saved = localStorage.getItem('safety_observations');
-    if (saved) {
-      try {
-        setObservations(JSON.parse(saved));
-      } catch (e) {
-        console.error("Failed to load observations", e);
-      }
+    const saved = storage.get<Observation[]>(StorageKeys.OBSERVATIONS, []);
+    if (saved.length > 0) {
+      setObservations(saved);
     }
   }, []);
 
   const handleAddObservation = (newObs: Observation) => {
     const updated = [newObs, ...observations];
     setObservations(updated);
-    localStorage.setItem('safety_observations', JSON.stringify(updated));
-    setView('history');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    const success = storage.set(StorageKeys.OBSERVATIONS, updated);
+    if (success) {
+      setView('history');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleProgressUpdate = (completedCount: number) => {
-    // Total of 8 categories
     const percentage = (completedCount / 8) * 100;
     setFormProgress(percentage);
   };
 
+  const handleLogoutDummy = () => {
+    storage.clearSession();
+    window.location.reload();
+  };
+
   return (
-    <Layout activeView={view} onViewChange={setView} progress={formProgress}>
+    <Layout 
+      activeView={view} 
+      onViewChange={setView} 
+      progress={formProgress} 
+      userRole="observer" 
+      onLogout={handleLogoutDummy}
+    >
       <div className="max-w-4xl mx-auto">
         {view === 'form' ? (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000">

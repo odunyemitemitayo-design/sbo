@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Category, SubCategoryMap, Observation } from '../types';
 import { analyzeObservation } from '../services/geminiService';
 import confetti from 'canvas-confetti';
@@ -31,10 +31,10 @@ const CategoryIcons: Record<string, string> = {
 
 const DetailedMetadata: Record<string, { desc: string; icon: string; hint?: string; glowColor?: string }> = {
   "Appropriate for the Task": { desc: "Tool specification vs task requirements", icon: "check-circle" },
-  "Selection & Condition": { desc: "Physical tool integrity and maintenance status", icon: "wrench", hint: "Check for: Current inspection tags, guard safety, proper tool ratings, and maintenance logs." },
+  "Selection & Condition": { desc: "Physical tool integrity and maintenance status", icon: "wrench" },
   "Correct Application": { desc: "Usage according to standard manufacturer intent", icon: "target" },
   "Workspace Appropriateness": { desc: "Physical area fit for task requirements", icon: "maximize" },
-  "Selection & Environmental Condition": { desc: "Lighting, ventilation, and flooring status", icon: "thermometer-snowflake", hint: "Consider: Housekeeping, Lighting, Noise levels, or Trip hazards." },
+  "Selection & Environmental Condition": { desc: "Lighting, ventilation, and flooring status", icon: "thermometer-snowflake" },
   "Utilization of Space": { desc: "Layout efficiency and safe flow", icon: "grid-3x3" },
   "Air Quality": { desc: "Emissions, dust, or vapors", icon: "wind" },
   "Land & Soil Integrity": { desc: "Spills or ground contamination", icon: "mountain" },
@@ -46,7 +46,6 @@ const ObservationForm: React.FC<ObservationFormProps> = ({ onSubmit, onProgressU
   const [globalObserver, setGlobalObserver] = useState('');
   const [globalLocation, setGlobalLocation] = useState('');
   const [dateTime, setDateTime] = useState(new Date().toISOString().slice(0, 16));
-  const [isFocused, setIsFocused] = useState(false);
   
   const [catStates, setCatStates] = useState<Record<string, CategoryData>>(() => {
     const initial: Record<string, CategoryData> = {};
@@ -59,11 +58,7 @@ const ObservationForm: React.FC<ObservationFormProps> = ({ onSubmit, onProgressU
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const commentAreaRef = useRef<HTMLTextAreaElement>(null);
   const current = catStates[activeCategory as string];
-
-  const MAX_CHARS = 500;
 
   const isComplete = (cat: string) => {
     const s = catStates[cat];
@@ -84,15 +79,6 @@ const ObservationForm: React.FC<ObservationFormProps> = ({ onSubmit, onProgressU
       ...prev,
       [activeCategory as string]: { ...prev[activeCategory as string], ...updates }
     }));
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => updateState({ imageUrl: reader.result as string });
-      reader.readAsDataURL(file);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,7 +104,8 @@ const ObservationForm: React.FC<ObservationFormProps> = ({ onSubmit, onProgressU
       isImmediateRisk: current.isImmediateRisk,
       comments: current.comments,
       correctiveAction: current.correctiveAction,
-      imageUrl: current.imageUrl
+      imageUrl: current.imageUrl,
+      status: current.isSafe ? 'completed' : 'pending' // Correctly set initial status
     };
 
     try {
@@ -136,9 +123,6 @@ const ObservationForm: React.FC<ObservationFormProps> = ({ onSubmit, onProgressU
       setIsSubmitting(false);
     }
   };
-
-  const isTools = activeCategory === Category.ToolsAndEquipment;
-  const isWorkEnv = activeCategory === Category.WorkEnvironment;
 
   if (isSuccess) {
     return (
@@ -213,26 +197,12 @@ const ObservationForm: React.FC<ObservationFormProps> = ({ onSubmit, onProgressU
 
           <div className={`transition-all duration-700 ${current.subCategory ? 'opacity-100' : 'opacity-0 h-0 pointer-events-none'}`}>
             <div className="pt-8 border-t border-slate-800/50 space-y-8">
-              <div className="relative group">
-                <textarea
-                  ref={commentAreaRef}
-                  onFocus={() => setIsFocused(true)}
-                  onBlur={() => setIsFocused(false)}
-                  placeholder="Professional field narrative..."
-                  value={current.comments}
-                  onChange={(e) => updateState({ comments: e.target.value })}
-                  className={`w-full bg-slate-950 border border-slate-800 rounded-[2.8rem] p-8 text-sm font-bold text-white focus:outline-none focus:border-cyan-500 ring-4 ring-cyan-500/5 transition-all h-40 resize-none`}
-                />
-                {(isTools || isWorkEnv) && (
-                  <div className={`mt-3 px-6 transition-all transform ${isFocused ? 'opacity-100 translate-y-0' : 'opacity-40 -translate-y-1'}`}>
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic leading-relaxed">
-                      {isTools 
-                        ? "Check for: Current inspection tags, guard safety, proper tool ratings, and maintenance logs."
-                        : "Consider: Housekeeping, Lighting, Noise levels, or Trip hazards."}
-                    </p>
-                  </div>
-                )}
-              </div>
+              <textarea
+                placeholder="Professional field narrative..."
+                value={current.comments}
+                onChange={(e) => updateState({ comments: e.target.value })}
+                className={`w-full bg-slate-950 border border-slate-800 rounded-[2.8rem] p-8 text-sm font-bold text-white focus:outline-none focus:border-cyan-500 ring-4 ring-cyan-500/5 transition-all h-40 resize-none`}
+              />
               {!current.isSafe && <textarea placeholder="Remediation Actions..." value={current.correctiveAction || ''} onChange={(e) => updateState({ correctiveAction: e.target.value })} className="w-full bg-slate-950 border-rose-500/50 rounded-[2.2rem] p-6 text-sm font-bold text-white focus:border-rose-500 outline-none h-24" />}
             </div>
           </div>
